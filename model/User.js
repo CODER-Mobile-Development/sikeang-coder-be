@@ -12,15 +12,15 @@ const userSchema = new mongoose.Schema({
   },
   studyProgram: {
     type: String,
-    default: ""
+    required: true
   },
   division: {
     type: String,
-    default: ""
+    required: true
   },
   position: { // values: member || admin
     type: String,
-    default: ""
+    required: true
   },
   profilePicture: {
     type: String,

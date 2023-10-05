@@ -1,5 +1,6 @@
 module.exports = {
-  getCurrentPoint: (req, res) => {
-
+  getSummaryPoint: (req, res) => {
+    console.log(req.userData)
+    res.status(200).json({error: false})
   }
 }
