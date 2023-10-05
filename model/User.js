@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema({
   position: { // values: member || admin
     type: String,
     default: ""
+  },
+  profilePicture: {
+    type: String,
+    default: ""
   }
 })
 

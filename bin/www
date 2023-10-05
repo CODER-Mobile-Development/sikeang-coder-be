@@ -74,7 +74,7 @@ function onError(error) {
 }
 
 function onListening() {
-  console.log(`erpns-plagiarism listening on port ${port}, hostname ${os.hostname}`)
+  console.log(`sikeang-coder listening on port ${port}, hostname ${os.hostname}`)
   const addr = server.address();
   const bind = typeof addr === 'string'
     ? 'pipe ' + addr
