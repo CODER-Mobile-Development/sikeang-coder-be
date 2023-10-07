@@ -3,7 +3,6 @@ const mongoose = require('mongoose')
 const eventSchema = new mongoose.Schema({
   eventName: {
     type: String,
-    default: "",
     required: true
   },
   startDate: {
@@ -22,10 +21,14 @@ const eventSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
-  eventType: {
-    type: String,
-    default: "",
+  eventType: { // types of event
+    type: String, // values: global || division
     required: true
+  },
+  eventDivision: { // if eventType global fill global division id
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'Division'
   }
 })
 

@@ -14,7 +14,14 @@ const pointTransactionSchema = new mongoose.Schema({
       type: String,
     },
     division: {
-      type: String
+      id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Division'
+      },
+      name: {
+        type: String
+      }
     }
   },
   event: {
@@ -28,6 +35,16 @@ const pointTransactionSchema = new mongoose.Schema({
     },
     startDate: {
       type: Date,
+    },
+    division: {
+      id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Division'
+      },
+      name: {
+        type: String
+      }
     }
   },
   point: {
