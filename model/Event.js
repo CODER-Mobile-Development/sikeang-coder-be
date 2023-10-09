@@ -28,7 +28,7 @@ const eventSchema = new mongoose.Schema({
   eventDivision: { // if eventType global fill global division id
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'Division'
+    ref: 'division'
   }
 })
 

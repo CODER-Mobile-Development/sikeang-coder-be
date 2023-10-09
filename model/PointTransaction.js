@@ -5,7 +5,7 @@ const pointTransactionSchema = new mongoose.Schema({
     id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'User'
+      ref: 'user'
     },
     name: {
       type: String,
@@ -17,7 +17,7 @@ const pointTransactionSchema = new mongoose.Schema({
       id: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'Division'
+        ref: 'division'
       },
       name: {
         type: String
@@ -28,7 +28,7 @@ const pointTransactionSchema = new mongoose.Schema({
     id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'Event'
+      ref: 'event'
     },
     name: {
       type: String,
@@ -40,7 +40,7 @@ const pointTransactionSchema = new mongoose.Schema({
       id: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'Division'
+        ref: 'division'
       },
       name: {
         type: String

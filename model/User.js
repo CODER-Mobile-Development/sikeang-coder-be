@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   division: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'Division'
+    ref: 'division'
   },
   position: { // values: member || admin
     type: String,
