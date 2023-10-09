@@ -74,7 +74,7 @@ module.exports = {
                 res.status(403).json({error: true, message: "Akses dibatasi!"})
               }
             } else {
-              res.status(404).json({error: true, message: "Sesi anda habis, silahkan untuk login ulang!"})
+              res.status(404).json({error: true, message: "User tidak valid, silahkan untuk login ulang!"})
             }
           })
           .catch(() =>
