@@ -4,7 +4,10 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
 const dashboardRouter = require('./app/dashboard/router');
-const authRouter = require('./app/auth/router')
+const authRouter = require('./app/auth/router');
+const eventRouter = require('./app/event/router');
+const divisionRouter = require('./app/division/router');
+const pointTransactionRouter = require('./app/transaction/router')
 
 const app = express();
 
@@ -16,5 +19,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/dashboard', dashboardRouter);
 app.use('/auth', authRouter);
+app.use('/event', eventRouter);
+app.use('/division', divisionRouter);
+app.use('/point-transaction', pointTransactionRouter);
 
 module.exports = app;

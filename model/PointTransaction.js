@@ -36,6 +36,9 @@ const pointTransactionSchema = new mongoose.Schema({
     startDate: {
       type: Date,
     },
+    endDate: {
+      type: Date
+    },
     division: {
       id: {
         type: mongoose.Schema.Types.ObjectId,
@@ -57,5 +60,5 @@ const pointTransactionSchema = new mongoose.Schema({
   }
 })
 
-const PointTransaction = mongoose.model('PointTransaction', pointTransactionSchema)
+const PointTransaction = mongoose.model('point-transaction', pointTransactionSchema)
 module.exports = PointTransaction
