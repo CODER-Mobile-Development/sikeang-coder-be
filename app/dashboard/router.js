@@ -1,8 +1,8 @@
 const express = require('express')
 const {getSummaryPoint} = require("./controller");
-const {requireAdmin} = require("../../middleware/authentication");
+const {requireAdminOrMember} = require("../../middleware/authentication");
 const router = express.Router()
 
-router.get("/", requireAdmin, getSummaryPoint)
+router.get("/", requireAdminOrMember, getSummaryPoint)
 
 module.exports = router;
