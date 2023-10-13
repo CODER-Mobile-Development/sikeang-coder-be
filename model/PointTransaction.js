@@ -10,7 +10,7 @@ const pointTransactionSchema = new mongoose.Schema({
     name: {
       type: String,
     },
-    programStudy: {
+    studyProgram: {
       type: String,
     },
     division: {
@@ -58,7 +58,7 @@ const pointTransactionSchema = new mongoose.Schema({
     type: String,
     required: true
   }
-})
+}, {timestamps: true})
 
 const PointTransaction = mongoose.model('point-transaction', pointTransactionSchema)
 module.exports = PointTransaction
