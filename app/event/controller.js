@@ -45,7 +45,7 @@ module.exports = {
   },
   findEventData: async (req, res) => {
     const {query, id, eventTime, eventType} = req.query
-    const {division, position} = req.userData
+    const {division: userDivision, position} = req.userData
 
     let dbQuery = {}
 
@@ -54,7 +54,8 @@ module.exports = {
       const currentDateAndTime = new moment()
       if (eventTime === "live") {
         dbQuery = {
-          eventType: eventType, $and: [
+          eventType: eventType,
+          $and: [
             {startDate: {$lte: currentDateAndTime}},
             {endDate: {$gte: currentDateAndTime}}
           ]
@@ -89,9 +90,34 @@ module.exports = {
             return res.status(200).json({error: false, data: {events: r}})
           }
 
-          res.status(200).json({
-            error: false,
-            data: {events: r.filter(item => item.eventDivision.toString() === division.toString())}
+          if (eventType === 'division') {
+            console.log(r.filter(item =>
+                item.eventDivision.toString() === userDivision._id.toString()
+            ))
+            return res.status(200).json({
+              error: false,
+              data: {
+                events: r.filter(item =>
+                    item.eventDivision.toString() === userDivision._id.toString()
+                )
+              }
+            })
+          }
+
+          if (eventType === 'global') {
+            return res.status(200).json({
+              error: false,
+              data: {
+                events: r.filter(item =>
+                    item.eventType === 'global'
+                )
+              }
+            })
+          }
+
+          return res.status(400).json({
+            error: true,
+            message: 'Request not valid!'
           })
         })
         .catch(e => {

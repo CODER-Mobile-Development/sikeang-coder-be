@@ -7,7 +7,7 @@ const dashboardRouter = require('./app/dashboard/router');
 const authRouter = require('./app/auth/router');
 const eventRouter = require('./app/event/router');
 const divisionRouter = require('./app/division/router');
-const pointTransactionRouter = require('./app/transaction/router')
+const pointTransactionRouter = require('./app/transaction/router');
 
 const app = express();
 
