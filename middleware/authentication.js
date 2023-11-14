@@ -31,6 +31,7 @@ module.exports = {
       const {data} = jwt.verify(token, JWT_KEY);
 
       User.findById(data._id)
+          .populate('division')
           .then(r => {
             if (r) {
               const {position} = r

@@ -13,13 +13,20 @@ module.exports = {
         expiresIn: 7 * 24 * 60 * 60
       })
 
-      return res.status(200).json({error: false, data: {token: sessionToken}})
+      return res.status(200).json({
+        error: false,
+        data: {
+          userToken: sessionToken,
+          userData: data
+        }
+      })
     }
 
     const updateUserData = (id, name, picture) => {
       User.findByIdAndUpdate(id, {
         userName: name, profilePicture: picture
       }, {new: true})
+          .populate('division')
           .then((r) => {
             signToken(r)
           })
@@ -77,5 +84,8 @@ module.exports = {
               message: "Gagal melakukan request ke Google, silahkan coba login ulang!"
             })
         )
+  },
+  getUserData: (req, res) => {
+    res.status(200).json({error: false, data: req.userData})
   }
 }
