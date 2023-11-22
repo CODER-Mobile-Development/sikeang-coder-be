@@ -1,11 +1,17 @@
 const jwt = require("jsonwebtoken");
-const {JWT_KEY} = require("../../config/env");
+const {JWT_KEY, GOOGLE_WEB_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URL} = require("../../config/env");
 const User = require("../../model/User");
 const axios = require("axios");
 
 module.exports = {
   actionUserAuthGoogle: (req, res) => {
-    const {idToken} = req.body;
+    const {code} = req.body;
+
+    const oauth2Client = new google.auth.OAuth2(
+        GOOGLE_WEB_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET,
+        GOOGLE_REDIRECT_URL
+    );
 
     // Sign token for API calls from frontend
     const signToken = (data) => {
@@ -39,8 +45,8 @@ module.exports = {
 
     }
 
-    const handleResultGoogleApi = (result) => {
-      const {email, name, picture} = result
+    const handleResultGoogleApi = (data) => {
+      const {email, name, picture} = data
 
       const checkEmailDomain = (email) => email.split("@")[1].includes("ittelkom-sby.ac.id")
 
@@ -74,16 +80,28 @@ module.exports = {
           )
     }
 
-    axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`)
+    oauth2Client.getToken(code)
         .then(r => {
-          return handleResultGoogleApi(r.data)
+          const {tokens} = r
+
+          oauth2Client.setCredentials({access_token: tokens.access_token});
+
+          const oauth2 = google.oauth2({
+            auth: oauth2Client,
+            version: 'v2'
+          });
+
+          oauth2.userinfo.get()
+              .then(r => handleResultGoogleApi(r.data))
+              .catch(() => res.status(500).json({
+                error: true,
+                message: "Gagal mendapatkan data user, silahkan coba beberapa saat lagi!"
+              }))
         })
-        .catch(() =>
-            res.status(500).json({
-              error: true,
-              message: "Gagal melakukan request ke Google, silahkan coba login ulang!"
-            })
-        )
+        .catch(() => res.status(500).json({
+          error: true,
+          message: "Gagal mendapatkan token, silahkan coba beberapa saat lagi!"
+        }))
   },
   getUserData: (req, res) => {
     res.status(200).json({error: false, data: req.userData})
