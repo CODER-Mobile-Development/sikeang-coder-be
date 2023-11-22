@@ -1,7 +1,8 @@
 const Event = require('../../model/Event')
-const Division = require('../../model/Division')
 const PointTransaction = require('../../model/PointTransaction')
 const User = require('../../model/User')
+const jwt = require("jsonwebtoken");
+const {JWT_KEY} = require("../../config/env");
 const moment = require('moment')
 const mongoose = require("mongoose");
 
@@ -16,39 +17,35 @@ const generatePoint = (activity) => {
 }
 
 module.exports = {
+  getAttendanceToken: (req, res) => {
+    try {
+      const {eventId} = req.params
+
+      const token = jwt.sign({
+        id: eventId
+      }, JWT_KEY, {expiresIn: 60})
+
+      res.status(200).json({error: false, data: {token}})
+    } catch (e) {
+      console.log(e)
+      res.status(500).json({error: true, message: e.toString()})
+    }
+  },
   recordAttendanceTransaction: async (req, res) => {
-    const {eventId} = req.body
+    const {token} = req.body
     const {
       _id: userId,
       userName,
       studyProgram,
-      division: userDivisionId
+      division: userDivision
     } = req.userData
 
-    const findDuplicateTransaction = (userId, eventId, activities, res) => {
-      return PointTransaction.find({
-        'user.id': userId,
-        'event.id': eventId,
-        activities
-      })
-          .then(r => {
-            if (r.length === 0) {
-              return false
-            } else {
-              return r[0]
-            }
-          })
-          .catch(e => {
-            console.log(e)
-            return res.status(500).json({
-              error: false,
-              message: "Gagal mencari data Point Transaction. Silahkan coba beberapa saat lagi."
-            })
-          })
-    }
-
-    const createPointTransaction = (user, event, point, activities, res) => {
-      return PointTransaction.create({user, event, point, activities})
+    const createPointTransaction = (user, event, point, activities) => {
+      return PointTransaction.findOneAndUpdate(
+          {'user.id': user.id, 'event.id': event.id, activities},
+          {user, event, point, activities},
+          {upsert: true, new: true}
+      )
           .then(r => {
             res.status(200).json({
               error: false,
@@ -65,13 +62,11 @@ module.exports = {
     }
 
     try {
-      const duplicateTransactionData = await findDuplicateTransaction(userId, eventId, "attendance", res)
+      const {id: eventId} = await jwt.verify(token, JWT_KEY)
 
-      if (duplicateTransactionData) return res.status(200).json({error: false, data: duplicateTransactionData})
+      const event = await Event.findById(eventId).populate('eventDivision')
 
-      const event = await Event.findById(eventId)
-
-      const {eventName, startDate, endDate, eventDivision: eventDivisionId} = event
+      const {eventName, startDate, endDate, eventDivision} = event
 
       const pointEarned = generatePoint('attendance')
 
@@ -82,22 +77,19 @@ module.exports = {
         })
       }
 
-      const userDivision = await Division.findById(userDivisionId)
-      const eventDivision = await Division.findById(eventDivisionId)
-
-      if (moment().isBefore(moment(startDate))) {
-        return res.status(400).json({
-          error: true,
-          message: "Acara belum dimulai! silahkan ulangi jika sudah memasuki jam acara."
-        })
-      }
-
-      if (moment().isAfter(moment(endDate))) {
-        return res.status(400).json({
-          error: true,
-          message: "Acara sudah selesai! tidak bisa melakukan presensi."
-        })
-      }
+      // if (moment().isBefore(moment(startDate))) {
+      //   return res.status(400).json({
+      //     error: true,
+      //     message: "Acara belum dimulai! silahkan ulangi jika sudah memasuki jam acara."
+      //   })
+      // }
+      //
+      // if (moment().isAfter(moment(endDate))) {
+      //   return res.status(400).json({
+      //     error: true,
+      //     message: "Acara sudah selesai! tidak bisa melakukan presensi."
+      //   })
+      // }
 
       const checkMatchDivision = (userDivisionName, eventDivisionName) =>
           (eventDivisionName === userDivisionName) || (eventDivisionName === "Global")
@@ -127,11 +119,16 @@ module.exports = {
             }
           },
           pointEarned,
-          'attendance',
-          res
+          'attendance'
       )
     } catch (e) {
-      console.log(e)
+      if (e.toString().includes('TokenExpiredError: jwt expired')) {
+        return res.status(404).json({
+          error: true,
+          message: `Token presensi kadaluarsa, silahkan coba beberapa saat lagi!`
+        })
+      }
+      
       res.status(500).json({
         error: true,
         message: `Error: ${e.toString()}`
@@ -189,5 +186,25 @@ module.exports = {
         message: `Error: ${e.toString()}`
       })
     }
+  },
+  getTotalPoint: (req, res) => {
+    const {_id, position, userName, division, profilePicture} = req.userData
+
+    PointTransaction.find({'user.id': _id})
+        .then(r => {
+
+              res.status(200).json({
+                error: false,
+                data: {
+                  totalPoint: r.reduce((accumulator, currentItem) => accumulator + currentItem.point, 0),
+                  name: userName,
+                  position: 'Anggota',
+                  division: division.divisionName,
+                  profilePicture
+                }
+              })
+            }
+        )
+        .catch(() => res.status(500).json({error: true, message: 'Gagal mendapatkan data point'}))
   }
 }
