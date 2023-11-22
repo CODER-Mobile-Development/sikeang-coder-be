@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+          name="viewport">
+    <meta content="ie=edge" http-equiv="X-UA-Compatible">
+    <title>Redirecting...</title>
+</head>
+<body>
+<script>
+  const currentURL = new URL(window.location.href);
+  const {userToken, eventId} = JSON.parse(currentURL.searchParams.get('data'))
+
+  localStorage.setItem('userToken', userToken)
+
+  fetch(`/event?query=id&id=${eventId}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${userToken}`
+    }
+  })
+      .then(async response => {
+        if (response.ok) {
+          const resJSON = await response.json()
+          const {events} = resJSON.data
+          if (events.length > 0) {
+            const event = events[0]
+            return window.location.replace(`/qr?eventId=${eventId}&eventName=${event.eventName}&startDate=${event.startDate}&endDate=${event.endDate}`)
+          }
+        }
+        throw new Error('Network response was not ok.');
+      })
+      .then(() => {
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+</script>
+</body>
+</html>

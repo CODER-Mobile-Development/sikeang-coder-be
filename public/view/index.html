@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+          name="viewport">
+    <meta content="ie=edge" http-equiv="X-UA-Compatible">
+    <title>Redirect</title>
+</head>
+<body>
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center">
+    <label for="url"><input disabled id="url" name="url" style="width: 300px;"></label>
+    <div style="margin-top: 10px; display: flex; align-items: center; gap: 5px;">
+        <button id="copyBtn" style="width: 150px;">Copy</button>
+        <button id="openBtn" style="width: 150px;">Open in New Tab</button>
+    </div>
+</div>
+
+<script>
+  const inputElement = document.getElementById('url');
+  const currentURL = new URL(window.location.href);
+  const eventId = currentURL.searchParams.get('eventId')
+  const userToken = currentURL.searchParams.get('userToken')
+  const baseURL = currentURL.searchParams.get('baseURL')
+
+  const json = {
+    eventId,
+    userToken
+  }
+
+  inputElement.value = `${baseURL}/rd/?data=${encodeURIComponent(JSON.stringify(json))}`
+
+  const copyButton = document.getElementById('copyBtn');
+  const openButton = document.getElementById('openBtn');
+
+  copyButton.addEventListener('click', () => {
+    inputElement.select();
+    inputElement.setSelectionRange(0, 99999);
+
+    document.execCommand('copy');
+
+    alert('Copied to clipboard: ' + inputElement.value);
+  });
+
+  openButton.addEventListener('click', () => {
+    window.open(inputElement.value, '_blank');
+  })
+</script>
+</body>
+</html>

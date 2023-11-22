@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+          name="viewport">
+    <meta content="ie=edge" http-equiv="X-UA-Compatible">
+    <title>QR Code</title>
+</head>
+<body>
+<div style="display: flex; flex-direction: column; align-items: center;">
+    <h1 id="eventName" style="text-align: center"></h1>
+    <p id="eventDate"></p>
+    <img alt="" id="qrcode" src="" style="height: 50vh">
+</div>
+</body>
+<script>
+  const userTokenFound = () => {
+    const currentURL = new URL(window.location.href);
+    const eventId = currentURL.searchParams.get('eventId')
+    const startDate = currentURL.searchParams.get('startDate')
+    const endDate = currentURL.searchParams.get('endDate')
+    const startDateString = `${new Date(startDate).toLocaleDateString()} ${new Date(startDate).toLocaleTimeString()}`
+    const endDateString = `${new Date(endDate).toLocaleDateString()} ${new Date(endDate).toLocaleTimeString()}`
+    const userToken = localStorage.getItem('userToken')
+
+    document.getElementById('eventName').innerHTML = currentURL.searchParams.get('eventName')
+    document.getElementById('eventDate').innerHTML = `${startDateString} - ${endDateString}`
+
+    const getToken = () => {
+      fetch(`/point-transaction/attendance-token/${eventId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        }
+      })
+          .then(async response => {
+            if (response.ok) {
+              const res = await response.json()
+              const attendanceToken = res.data.token
+
+              setTimeout(() => {
+                getToken();
+              }, 30000)
+              return document.getElementById('qrcode').src = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + attendanceToken
+            }
+            throw new Error('Network response was not ok.');
+          })
+          .then(() => {
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+    }
+
+    getToken();
+  }
+
+  if (localStorage.getItem('userToken')) {
+    userTokenFound()
+  } else {
+    alert('Token not valid!')
+  }
+</script>
+</html>
