@@ -11,5 +11,19 @@ module.exports = {
         .catch(e =>
             res.status(500).json({error: true, message: `Error: ${e.toString()}`})
         )
+  },
+  getAllDivisionData: (req, res) => {
+    Division.find({})
+        .then(r =>
+            res.status(200).json({
+              error: false,
+              data: {
+                divisions: r.filter(item => item.divisionName !== 'Global')
+              }
+            })
+        )
+        .catch(e =>
+            res.status(500).json({error: true, message: `Error: ${e.toString()}`})
+        )
   }
 }
