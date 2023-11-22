@@ -1,4 +1,12 @@
 module.exports = {
   JWT_KEY: process.env.JWT_KEY,
-  MONGO_URI: process.env.MONGO_URI
+  MONGO_URI: process.env.MONGO_URI,
+  GOOGLE_WEB_CLIENT_ID: process.env.GOOGLE_WEB_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+  GOOGLE_REDIRECT_URL: process.env.GOOGLE_REDIRECT_URL,
+  R2_ACCESS_KEY: process.env.R2_ACCESS_KEY,
+  R2_ACCESS_SECRET: process.env.R2_ACCESS_SECRET,
+  R2_ENDPOINT: process.env.R2_ENDPOINT,
+  R2_BUCKET: process.env.R2_BUCKET,
+  R2_DOMAIN: process.env.R2_DOMAIN
 }
