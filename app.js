@@ -8,6 +8,7 @@ const authRouter = require('./app/auth/router');
 const eventRouter = require('./app/event/router');
 const divisionRouter = require('./app/division/router');
 const pointTransactionRouter = require('./app/transaction/router');
+const userRouter = require('./app/user/router');
 
 const app = express();
 
@@ -22,5 +23,6 @@ app.use('/auth', authRouter);
 app.use('/event', eventRouter);
 app.use('/division', divisionRouter);
 app.use('/point-transaction', pointTransactionRouter);
+app.use('/user', userRouter);
 
 module.exports = app;
