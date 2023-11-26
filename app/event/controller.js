@@ -8,18 +8,32 @@ const {R2_ENDPOINT, R2_ACCESS_KEY, R2_ACCESS_SECRET, R2_BUCKET, R2_DOMAIN} = req
 
 module.exports = {
   addEventData: (req, res) => {
-    const {eventName, startDate, endDate, description, photoUrl, eventType, eventDivision} = req.body
+    const {eventName, startDate, endDate, description, photoUrl, eventType, eventDivision, eventLocation} = req.body
 
-    Event.create({eventName, startDate, endDate, description, photoUrl, eventType, eventDivision})
-        .then(r => {
-          res.status(200).json({error: false, data: r})
-        })
-        .catch(e => {
-          console.log(e)
-          res.status(500).json({
-            error: true,
-            message: "Gagal membuat data Event, silahkan coba beberapa saat lagi."
+    Division.findOne({divisionName: 'Global'})
+        .then(divisionGlobal => {
+          const {_id: divisionGlobalId} = divisionGlobal
+
+          Event.create({
+            eventName,
+            startDate,
+            endDate,
+            description,
+            photoUrl,
+            eventType,
+            eventLocation,
+            eventDivision: eventType === 'global' ? divisionGlobalId : eventDivision
           })
+              .then(r => {
+                res.status(200).json({error: false, data: r})
+              })
+              .catch(e => {
+                console.log(e)
+                res.status(500).json({
+                  error: true,
+                  message: "Gagal membuat data Event, silahkan coba beberapa saat lagi."
+                })
+              })
         })
   },
   editEventData: (req, res) => {
@@ -165,7 +179,24 @@ module.exports = {
           console.log(e)
           res.status(500).json({
             error: true,
-            message: "Gagal mencari data Event, silahkan coba beberapa saat lagi."
+            message: "Gagal mencari data Event, silahkan coba beberapa saat lagi!"
+          })
+        })
+  },
+  deleteEventData: (req, res) => {
+    const {id} = req.params;
+
+    Event.findByIdAndDelete(id)
+        .then(() => {
+          res.status(200).json({
+            error: false,
+            data: null
+          })
+        })
+        .catch(() => {
+          res.status(500).json({
+            error: false,
+            message: 'Gagal menghapus data Event, silahkan coba beberapa saat lagi!'
           })
         })
   },
