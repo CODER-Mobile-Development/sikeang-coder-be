@@ -3,7 +3,6 @@ const PointTransaction = require('../../model/PointTransaction')
 const User = require('../../model/User')
 const jwt = require("jsonwebtoken");
 const {JWT_KEY} = require("../../config/env");
-const moment = require('moment')
 const mongoose = require("mongoose");
 
 const generatePoint = (activity) => {
@@ -128,7 +127,7 @@ module.exports = {
           message: `Token presensi kadaluarsa, silahkan coba beberapa saat lagi!`
         })
       }
-      
+
       res.status(500).json({
         error: true,
         message: `Error: ${e.toString()}`

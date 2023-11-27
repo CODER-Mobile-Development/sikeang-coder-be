@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const {JWT_KEY, GOOGLE_WEB_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URL} = require("../../config/env");
 const User = require("../../model/User");
-const axios = require("axios");
 
 module.exports = {
   actionUserAuthGoogle: (req, res) => {

@@ -1,4 +1,5 @@
 const User = require('../../model/User')
+const {R2_DOMAIN} = require("../../config/env");
 
 module.exports = {
   findUsers: (req, res) => {
@@ -17,10 +18,33 @@ module.exports = {
     }
 
     User.find(dbQuery)
+        .populate('division')
         .then(r => {
           res.status(200).json({
             error: false,
             data: {users: r}
+          })
+        })
+        .catch(e => res.status(500).json({
+          error: true,
+          message: e.toString()
+        }))
+  },
+  createAdminUser: (req, res) => {
+    const {userName, email, divisionId, studyProgram} = req.body;
+
+    User.create({
+      userName,
+      email,
+      studyProgram,
+      division: divisionId,
+      profilePicture: `${R2_DOMAIN}/sikeang/assets/coder-logo.jpg`,
+      position: 'admin'
+    })
+        .then(r => {
+          res.status(200).json({
+            error: false,
+            data: r
           })
         })
         .catch(e => res.status(500).json({

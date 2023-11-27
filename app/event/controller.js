@@ -202,7 +202,7 @@ module.exports = {
   },
   getPreSignedKeyUpload: (req, res) => {
     const {fileFormat} = req.query
-    const key = `sikeang-events/${uuidv4()}.${fileFormat}`
+    const key = `sikeang/events/${uuidv4()}.${fileFormat}`
 
     const S3 = new S3Client({
       endpoint: R2_ENDPOINT,
