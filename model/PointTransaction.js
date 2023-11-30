@@ -13,6 +13,9 @@ const pointTransactionSchema = new mongoose.Schema({
     studyProgram: {
       type: String,
     },
+    email: {
+      type: String
+    },
     division: {
       id: {
         type: mongoose.Schema.Types.ObjectId,

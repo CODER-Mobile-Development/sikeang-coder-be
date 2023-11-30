@@ -2,7 +2,7 @@ const Event = require('../../model/Event')
 const PointTransaction = require('../../model/PointTransaction')
 const User = require('../../model/User')
 const jwt = require("jsonwebtoken");
-const {JWT_KEY} = require("../../config/env");
+const {JWT_KEY, R2_DOMAIN} = require("../../config/env");
 const mongoose = require("mongoose");
 
 const generatePoint = (activity) => {
@@ -36,6 +36,7 @@ module.exports = {
       _id: userId,
       userName,
       studyProgram,
+      email: userEmail,
       division: userDivision
     } = req.userData
 
@@ -102,6 +103,7 @@ module.exports = {
             id: userId,
             name: userName,
             studyProgram,
+            email: userEmail,
             division: {
               id: userDivision._id,
               name: userDivision.divisionName
@@ -133,6 +135,74 @@ module.exports = {
         message: `Error: ${e.toString()}`
       })
     }
+  },
+  getUserAttendanceStatus: async (req, res) => {
+    const {eventId, status} = req.query
+
+    if (!eventId || !status) {
+      res.status(400).json({
+        error: true,
+        message: `Error: eventId and status query required!`
+      })
+    }
+
+    const getAllMembersUser = (userIds) => {
+      User.find({position: 'member'})
+          .then(r => {
+            res.status(200).json({
+              error: false,
+              data: {
+                users: r.map(item => {
+                  return {
+                    _id: item._id,
+                    userName: item.userName,
+                    email: item.email,
+                    studyProgram: item.studyProgram,
+                    profilePicture: `${R2_DOMAIN}/sikeang/assets/coder-logo.jpg`,
+                    status: userIds.includes(item._id.toString())
+                  }
+                })
+              }
+            })
+          })
+          .catch(e => {
+            console.log(e)
+            res.status(500).json({
+              error: true,
+              message: `Error: ${e.toString()}`
+            })
+          })
+    }
+
+    PointTransaction.find({'event.id': eventId})
+        .then(r => {
+          if (status === 'true') {
+            return res.status(200).json({
+              error: false,
+              data: {
+                users: r.map(item => {
+                  return {
+                    _id: item.user.id,
+                    userName: item.user.name,
+                    email: item.user.email,
+                    studyProgram: item.user.studyProgram,
+                    profilePicture: `${R2_DOMAIN}/sikeang/assets/coder-logo.jpg`,
+                    status: true
+                  }
+                })
+              }
+            })
+          }
+          const alreadyAttendanceUserIds = r.map(item => item.user.id.toString())
+          getAllMembersUser(alreadyAttendanceUserIds)
+        })
+        .catch(e => {
+          console.log(e)
+          res.status(500).json({
+            error: true,
+            message: `Error: ${e.toString()}`
+          })
+        })
   },
   recordCommitteeTransaction: async (req, res) => {
     const {userIds, eventId} = req.body
