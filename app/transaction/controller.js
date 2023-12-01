@@ -15,6 +15,27 @@ const generatePoint = (activity) => {
   }
 }
 
+const createPointTransaction = (user, event, point, activities, res) => {
+  return PointTransaction.findOneAndUpdate(
+      {'user.id': user.id, 'event.id': event.id, activities},
+      {user, event, point, activities},
+      {upsert: true, new: true}
+  )
+      .then(r => {
+        res.status(200).json({
+          error: false,
+          data: r
+        })
+      })
+      .catch(e => {
+        console.log(e)
+        res.status(500).json({
+          error: false,
+          message: "Gagal membuat data Point Transaction. Silahkan coba beberapa saat lagi."
+        })
+      })
+}
+
 module.exports = {
   getAttendanceToken: (req, res) => {
     try {
@@ -39,27 +60,6 @@ module.exports = {
       email: userEmail,
       division: userDivision
     } = req.userData
-
-    const createPointTransaction = (user, event, point, activities) => {
-      return PointTransaction.findOneAndUpdate(
-          {'user.id': user.id, 'event.id': event.id, activities},
-          {user, event, point, activities},
-          {upsert: true, new: true}
-      )
-          .then(r => {
-            res.status(200).json({
-              error: false,
-              data: r
-            })
-          })
-          .catch(e => {
-            console.log(e)
-            res.status(500).json({
-              error: false,
-              message: "Gagal membuat data Point Transaction. Silahkan coba beberapa saat lagi."
-            })
-          })
-    }
 
     try {
       const {id: eventId} = await jwt.verify(token, JWT_KEY)
@@ -120,7 +120,8 @@ module.exports = {
             }
           },
           pointEarned,
-          'attendance'
+          'attendance',
+          res
       )
     } catch (e) {
       if (e.toString().includes('TokenExpiredError: jwt expired')) {
@@ -203,6 +204,67 @@ module.exports = {
             message: `Error: ${e.toString()}`
           })
         })
+  },
+  recordManualAttendanceTransaction: async (req, res) => {
+    const {userId, eventId, isAttending} = req.body;
+
+    try {
+      const user = await User.findById(userId).populate('division')
+      const event = await Event.findById(eventId).populate('eventDivision')
+
+      if (isAttending) {
+        return createPointTransaction(
+            {
+              id: user._id,
+              name: user.userName,
+              studyProgram: user.studyProgram,
+              email: user.email,
+              division: {
+                id: user.division._id,
+                name: user.division.divisionName
+              }
+            },
+            {
+              id: event._id,
+              name: event.eventName,
+              startDate: event.startDate,
+              endDate: event.endDate,
+              division: {
+                id: event.eventDivision._id,
+                name: event.eventDivision.divisionName
+              }
+            },
+            5,
+            'attendance',
+            res
+        )
+      } else {
+        PointTransaction.findOneAndDelete({
+          'user.id': userId,
+          'event.id': eventId,
+          activities: 'attendance'
+        })
+            .then(r => {
+              res.status(200).json({
+                error: false,
+                data: null
+              })
+            })
+            .catch(e => {
+              console.log(e)
+              res.status(500).json({
+                error: true,
+                message: `Error: ${e.toString()}`
+              })
+            })
+      }
+    } catch (e) {
+      console.log(e)
+      res.status(500).json({
+        error: true,
+        message: `Error: ${e.toString()}`
+      })
+    }
   },
   recordCommitteeTransaction: async (req, res) => {
     const {userIds, eventId} = req.body
