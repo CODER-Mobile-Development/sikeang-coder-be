@@ -4,8 +4,8 @@ const {
   recordCommitteeTransaction,
   getAttendanceToken,
   getTotalPoint,
-  getUserAttendanceStatus,
   recordManualAttendanceTransaction,
+  getPointTransactionStatus,
 } = require("./controller");
 const {
   requireAdminOrMember,
@@ -15,9 +15,9 @@ const router = express.Router()
 
 router.get('/attendance-token/:eventId', requireAdmin, getAttendanceToken)
 router.post('/attendance', requireAdminOrMember, recordAttendanceTransaction)
-router.get('/attendance-status', requireAdmin, getUserAttendanceStatus)
 router.post('/manual-attendance', requireAdmin, recordManualAttendanceTransaction)
 router.post('/committee', requireAdmin, recordCommitteeTransaction)
+router.get('/status', requireAdmin, getPointTransactionStatus)
 router.get('/total', requireAdminOrMember, getTotalPoint)
 
 module.exports = router

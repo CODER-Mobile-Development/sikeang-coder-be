@@ -137,74 +137,6 @@ module.exports = {
       })
     }
   },
-  getUserAttendanceStatus: async (req, res) => {
-    const {eventId, status} = req.query
-
-    if (!eventId || !status) {
-      res.status(400).json({
-        error: true,
-        message: `Error: eventId and status query required!`
-      })
-    }
-
-    const getAllMembersUser = (userIds) => {
-      User.find({position: 'member'})
-          .then(r => {
-            res.status(200).json({
-              error: false,
-              data: {
-                users: r.map(item => {
-                  return {
-                    _id: item._id,
-                    userName: item.userName,
-                    email: item.email,
-                    studyProgram: item.studyProgram,
-                    profilePicture: `${R2_DOMAIN}/sikeang/assets/coder-logo.jpg`,
-                    status: userIds.includes(item._id.toString())
-                  }
-                })
-              }
-            })
-          })
-          .catch(e => {
-            console.log(e)
-            res.status(500).json({
-              error: true,
-              message: `Error: ${e.toString()}`
-            })
-          })
-    }
-
-    PointTransaction.find({'event.id': eventId})
-        .then(r => {
-          if (status === 'true') {
-            return res.status(200).json({
-              error: false,
-              data: {
-                users: r.map(item => {
-                  return {
-                    _id: item.user.id,
-                    userName: item.user.name,
-                    email: item.user.email,
-                    studyProgram: item.user.studyProgram,
-                    profilePicture: `${R2_DOMAIN}/sikeang/assets/coder-logo.jpg`,
-                    status: true
-                  }
-                })
-              }
-            })
-          }
-          const alreadyAttendanceUserIds = r.map(item => item.user.id.toString())
-          getAllMembersUser(alreadyAttendanceUserIds)
-        })
-        .catch(e => {
-          console.log(e)
-          res.status(500).json({
-            error: true,
-            message: `Error: ${e.toString()}`
-          })
-        })
-  },
   recordManualAttendanceTransaction: async (req, res) => {
     const {userId, eventId, isAttending} = req.body;
 
@@ -318,8 +250,76 @@ module.exports = {
       })
     }
   },
+  getPointTransactionStatus: (req, res) => {
+    const {eventId, status, type} = req.query
+
+    if (!eventId || !status) {
+      res.status(400).json({
+        error: true,
+        message: `Error: eventId and status query required!`
+      })
+    }
+
+    const getAllMembersUser = (userIds) => {
+      User.find({position: 'member'})
+          .then(r => {
+            res.status(200).json({
+              error: false,
+              data: {
+                users: r.map(item => {
+                  return {
+                    _id: item._id,
+                    userName: item.userName,
+                    email: item.email,
+                    studyProgram: item.studyProgram,
+                    profilePicture: `${R2_DOMAIN}/sikeang/assets/coder-logo.jpg`,
+                    status: userIds.includes(item._id.toString())
+                  }
+                })
+              }
+            })
+          })
+          .catch(e => {
+            console.log(e)
+            res.status(500).json({
+              error: true,
+              message: `Error: ${e.toString()}`
+            })
+          })
+    }
+
+    PointTransaction.find({'event.id': eventId, activities: type})
+        .then(r => {
+          if (status === 'true') {
+            return res.status(200).json({
+              error: false,
+              data: {
+                users: r.map(item => {
+                  return {
+                    _id: item.user.id,
+                    userName: item.user.name,
+                    email: item.user.email,
+                    studyProgram: item.user.studyProgram,
+                    profilePicture: `${R2_DOMAIN}/sikeang/assets/coder-logo.jpg`,
+                    status: true
+                  }
+                })
+              }
+            })
+          }
+          const alreadyAttendanceUserIds = r.map(item => item.user.id.toString())
+          getAllMembersUser(alreadyAttendanceUserIds)
+        })
+        .catch(e => {
+          console.log(e)
+          res.status(500).json({
+            error: true,
+            message: `Error: ${e.toString()}`
+          })
+        })
+  },
   getTotalPoint: (req, res) => {
-    const {_id, position, userName, division, profilePicture} = req.userData
+    const {_id, userName, division, profilePicture} = req.userData
 
     PointTransaction.find({'user.id': _id})
         .then(r => {
