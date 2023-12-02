@@ -137,6 +137,82 @@ module.exports = {
       })
     }
   },
+  adminManualRecordTransaction: async (req, res) => {
+    const {activities, userId, eventId, status} = req.body;
+    const pointEarned = generatePoint(activities)
+
+    if (!activities || !userId || !eventId) {
+      return res.status(400).json({
+        error: true,
+        message: `body (activities, userId, eventId, status) required!`
+      })
+    }
+
+    if (pointEarned === -1) {
+      return res.status(400).json({
+        error: true,
+        message: `activities not recognized!`
+      })
+    }
+
+    try {
+      const user = await User.findById(userId).populate('division')
+      const event = await Event.findById(eventId).populate('eventDivision')
+
+      if (status) {
+        return createPointTransaction(
+            {
+              id: user._id,
+              name: user.userName,
+              studyProgram: user.studyProgram,
+              email: user.email,
+              division: {
+                id: user.division._id,
+                name: user.division.divisionName
+              }
+            },
+            {
+              id: event._id,
+              name: event.eventName,
+              startDate: event.startDate,
+              endDate: event.endDate,
+              division: {
+                id: event.eventDivision._id,
+                name: event.eventDivision.divisionName
+              }
+            },
+            pointEarned,
+            activities,
+            res
+        )
+      } else {
+        PointTransaction.findOneAndDelete({
+          'user.id': userId,
+          'event.id': eventId,
+          activities
+        })
+            .then(r => {
+              res.status(200).json({
+                error: false,
+                data: null
+              })
+            })
+            .catch(e => {
+              console.log(e)
+              res.status(500).json({
+                error: true,
+                message: `Error: ${e.toString()}`
+              })
+            })
+      }
+    } catch (e) {
+      console.log(e)
+      res.status(500).json({
+        error: true,
+        message: `Error: ${e.toString()}`
+      })
+    }
+  },
   recordManualAttendanceTransaction: async (req, res) => {
     const {userId, eventId, isAttending} = req.body;
 
