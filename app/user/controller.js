@@ -52,5 +52,26 @@ module.exports = {
           error: true,
           message: e.toString()
         }))
+  },
+  updateUser: (req, res) => {
+    const {position, id} = req.params
+    const {userName, email, divisionId, studyProgram} = req.body;
+
+    User.findOneAndUpdate({_id: id, position}, {
+      userName,
+      email,
+      studyProgram,
+      division: divisionId,
+    })
+        .then(r => {
+          res.status(200).json({
+            error: false,
+            data: r
+          })
+        })
+        .catch(e => res.status(500).json({
+          error: true,
+          message: e.toString()
+        }))
   }
 }
