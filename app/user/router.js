@@ -1,8 +1,8 @@
 const express = require('express')
-const {findUsers, createAdminUser} = require("./controller");
+const {findUsers, createUser} = require("./controller");
 const router = express.Router()
 
 router.get('/', findUsers)
-router.post('/admin', createAdminUser)
+router.post('/:position', createUser)
 
 module.exports = router

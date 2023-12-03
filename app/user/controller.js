@@ -30,16 +30,17 @@ module.exports = {
           message: e.toString()
         }))
   },
-  createAdminUser: (req, res) => {
+  createUser: (req, res) => {
+    const {position} = req.params
     const {userName, email, divisionId, studyProgram} = req.body;
 
     User.create({
       userName,
       email,
       studyProgram,
+      position,
       division: divisionId,
-      profilePicture: `${R2_DOMAIN}/sikeang/assets/coder-logo.jpg`,
-      position: 'admin'
+      profilePicture: `${R2_DOMAIN}/sikeang/assets/coder-logo.jpg`
     })
         .then(r => {
           res.status(200).json({
