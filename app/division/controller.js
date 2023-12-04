@@ -1,4 +1,5 @@
 const Division = require('../../model/Division')
+const User = require('../../model/User')
 
 module.exports = {
   addDivisionData: (req, res) => {
@@ -25,5 +26,22 @@ module.exports = {
         .catch(e =>
             res.status(500).json({error: true, message: `Error: ${e.toString()}`})
         )
+  },
+  updateDivisionData: (req, res) => {
+    const {divisionId} = req.params
+    const {divisionName} = req.body
+
+    Division.findByIdAndUpdate(divisionId, {divisionName})
+        .then(() => {
+          res.status(200).json({
+            error: false,
+            data: null
+          })
+        })
+        .catch(e => res.status(500).json({
+          error: true,
+          message: e.toString()
+        }))
+  },
   }
 }
