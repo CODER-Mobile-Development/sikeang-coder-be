@@ -73,5 +73,20 @@ module.exports = {
           error: true,
           message: e.toString()
         }))
+  },
+  deleteUser: (req, res) => {
+    const {position, id} = req.params
+
+    User.findOneAndDelete({_id: id, position})
+        .then(r => {
+          res.status(200).json({
+            error: false,
+            data: null
+          })
+        })
+        .catch(e => res.status(500).json({
+          error: true,
+          message: e.toString()
+        }))
   }
 }
