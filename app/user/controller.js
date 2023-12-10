@@ -1,5 +1,6 @@
 const User = require('../../model/User')
 const {R2_DOMAIN} = require("../../config/env");
+const Division = require("../../model/Division");
 
 module.exports = {
   findUsers: (req, res) => {
@@ -34,45 +35,71 @@ module.exports = {
     const {position} = req.params
     const {userName, email, divisionId, studyProgram} = req.body;
 
-    User.create({
-      userName,
-      email,
-      studyProgram,
-      position,
-      division: divisionId,
-      profilePicture: `${R2_DOMAIN}/sikeang/assets/coder-logo.jpg`
-    })
-        .then(r => {
-          res.status(200).json({
-            error: false,
-            data: r
+    const addUserAction = (division) => {
+      User.create({
+        userName,
+        email,
+        studyProgram,
+        position,
+        division,
+        profilePicture: `${R2_DOMAIN}/sikeang/assets/coder-logo.jpg`
+      })
+          .then(r => {
+            res.status(200).json({
+              error: false,
+              data: r
+            })
           })
-        })
-        .catch(e => res.status(500).json({
-          error: true,
-          message: e.toString()
-        }))
+          .catch(e => res.status(500).json({
+            error: true,
+            message: e.toString()
+          }))
+    }
+
+    if (position === 'admin') {
+      Division.findOne({divisionName: 'Global'})
+          .then(r => addUserAction(r._id))
+          .catch(e => res.status(500).json({
+            error: true,
+            message: e.toString()
+          }))
+    } else if (position === 'member') {
+      addUserAction(divisionId)
+    }
   },
   updateUser: (req, res) => {
     const {position, id} = req.params
     const {userName, email, divisionId, studyProgram} = req.body;
 
-    User.findOneAndUpdate({_id: id, position}, {
-      userName,
-      email,
-      studyProgram,
-      division: divisionId,
-    })
-        .then(r => {
-          res.status(200).json({
-            error: false,
-            data: r
+    const editUserAction = (division) => {
+      User.findOneAndUpdate({_id: id, position}, {
+        userName,
+        email,
+        studyProgram,
+        division
+      })
+          .then(r => {
+            res.status(200).json({
+              error: false,
+              data: r
+            })
           })
-        })
-        .catch(e => res.status(500).json({
-          error: true,
-          message: e.toString()
-        }))
+          .catch(e => res.status(500).json({
+            error: true,
+            message: e.toString()
+          }))
+    }
+
+    if (position === 'admin') {
+      Division.findOne({divisionName: 'Global'})
+          .then(r => editUserAction(r._id))
+          .catch(e => res.status(500).json({
+            error: true,
+            message: e.toString()
+          }))
+    } else if (position === 'member') {
+      editUserAction(divisionId)
+    }
   },
   deleteUser: (req, res) => {
     const {position, id} = req.params
