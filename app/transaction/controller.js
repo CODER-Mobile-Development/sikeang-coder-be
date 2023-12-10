@@ -43,7 +43,7 @@ module.exports = {
 
       const token = jwt.sign({
         id: eventId
-      }, JWT_KEY, {expiresIn: 60})
+      }, JWT_KEY, {expiresIn: 10})
 
       res.status(200).json({error: false, data: {token}})
     } catch (e) {
@@ -95,7 +95,7 @@ module.exports = {
           (eventDivisionName === userDivisionName) || (eventDivisionName === "Global")
 
       if (!checkMatchDivision(userDivision.divisionName, eventDivision.divisionName)) {
-        return res.status(400).json({error: true, message: "Data divisi tidak sesuai!"})
+        return res.status(400).json({error: true, message: `Anda bukan dari divisi ${eventDivision.divisionName}!`})
       }
 
       return createPointTransaction(
@@ -128,6 +128,11 @@ module.exports = {
         return res.status(404).json({
           error: true,
           message: `Token presensi kadaluarsa, silahkan coba beberapa saat lagi!`
+        })
+      } else if (e.toString().includes("JsonWebTokenError: jwt malformed")) {
+        return res.status(404).json({
+          error: true,
+          message: `Kode QR tidak valid!`
         })
       }
 
