@@ -72,10 +72,10 @@ module.exports = {
               })
             }
           })
-          .catch(() =>
+          .catch((e) =>
               res.status(500).json({
                 error: true,
-                message: "Gagal mencari data user, silahkan coba beberapa saat lagi!"
+                message: `Error: ${e.toString()}`
               })
           )
     }
