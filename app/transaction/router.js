@@ -1,7 +1,6 @@
 const express = require('express')
 const {
   recordAttendanceTransaction,
-  recordCommitteeTransaction,
   getAttendanceToken,
   getTotalPoint,
   getPointTransactionStatus,

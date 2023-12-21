@@ -353,7 +353,7 @@ module.exports = {
                     userName: item.userName,
                     email: item.email,
                     studyProgram: item.studyProgram,
-                    profilePicture: `${R2_DOMAIN}/sikeang/assets/coder-logo.jpg`,
+                    profilePicture: item.profilePicture ? item.profilePicture : `${R2_DOMAIN}/sikeang/assets/coder-logo.jpg`,
                     status: userIds.includes(item._id.toString())
                   }
                 })
